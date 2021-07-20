@@ -1,4 +1,4 @@
-# moline.vim
+# moline.vim ![logo](https://user-images.githubusercontent.com/33030965/126333073-000140a3-0ab7-4d38-b775-e524615ce009.png)
 
 Yet another status line plugin. I create it just for eye candy.
 

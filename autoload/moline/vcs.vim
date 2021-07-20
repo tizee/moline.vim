@@ -48,10 +48,10 @@ function! moline#vcs#git() abort
   if r > 0
     call add(msg, '%#Moline_git_removed#%'. ' '. s:git_status_icons['removed'] . ' ' . r)
   endif 
-  if len(remote_icon) > 0
+  if !empty(remote_icon)
     call add(msg, '%#Moline_git_icon#%' . ' '. remote_icon)
   endif
-  if winwidth(0) > 80
+  if winwidth(0) > 80 && !empty(current_branch)
     call add(msg, current_branch)
   endif 
   return join(msg, ' ')
@@ -63,7 +63,7 @@ function! s:get_git_diff_hunk() abort
   let modified= 0
   let removed = 0
   if exists('*GitGutterGetHunkSummary')
-    let[added, modified, removed] = GitGutterGetHunkSummary()
+    let [added, modified, removed] = GitGutterGetHunkSummary()
   endif 
   return [added, modified, removed]
 endfunction

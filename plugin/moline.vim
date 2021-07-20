@@ -61,11 +61,15 @@ let g:moline_buffer_modes = {
 augroup moline
   autocmd!
   " basic
-  autocmd FileType,BufWinEnter,BufEnter,WinEnter,VimResized,TermOpen,FileChangedShellPost * call moline#update(0)
+  autocmd FileType,BufWinEnter,BufEnter,WinEnter,VimResized * call moline#update(0)
+  if has('nvim') 
+    autocmd TermOpen,FileChangedShellPost * call moline#update(0)
+  endif
   autocmd WinLeave,BufWinLeave * call moline#update(1)
   " coc
-  " autocmd User CocStatusChange,CocGitStatusChange,ClapOnExit,GitGutter,Signify call moline#update(0)
-  " autocmd User CocDiagnosticChange call moline#update(0)
+  autocmd User CocStatusChange,CocDiagnosticChange call moline#update(0)
+  " GitGutter
+  autocmd User GitGutter call moline#update(0)
 augroup END "moline
 
 let &cpo = s:save_cpo

@@ -2,6 +2,8 @@
 
 Yet another status line plugin. I create it just for eye candy.
 
+![demo](https://user-images.githubusercontent.com/33030965/126329654-4b3ba419-ceca-45db-8d25-2d86b635d39c.png)
+
 ## Features
 
 - Git status (require fugitive.vim and GitGutter)

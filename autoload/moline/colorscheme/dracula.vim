@@ -124,7 +124,7 @@ let s:colors = {
         \ },
       \ 'git': {
         \ 'inactive': s:inactive,
-        \ 'add': {
+        \ 'added': {
             \ 'cterm'   : 'bold',
             \ 'gui'     : 'bold',
             \ 'guifg': s:palette.green[0],

@@ -56,11 +56,12 @@ let s:special_filetype= {
       \  'help' : ' HELP',
       \  'nerdtree': ' MENU',
       \  'startify': ' DASHBOARD',
-      \  'qf': 'פֿ QUICKFIX'
+      \  'qf': 'פֿ QUICKFIX',
+      \  'terminal': ' Terminal'
       \}
 
 function! moline#file#is_not_specialfile() abort
-  if has_key(s:special_filetype,&filetype) && s:is_not_term()
+  if strlen(&ft)==0 || (has_key(s:special_filetype,&filetype) && s:is_not_term())
     return 0
   endif
   return 1
@@ -77,6 +78,9 @@ function! moline#file#get_specialfile_info() abort
       let other = call(file_handler,[])
     endif 
     return icon . ' ' . other
+  elseif mode() == 't'
+    let icon = s:special_filetype['terminal']
+    return icon
   endif
   return ''
 endfunction

@@ -5,7 +5,7 @@ scriptencoding utf-8
 let s:default_moline= {
       \ 'colorscheme': 'dracula',
       \ 'active': { 'left': ['mode','filename','error','warn'], 'right': ['vcs','line','char','fileencoding','fileformat'], },
-      \ 'inactive': { 'left': ['filename','error','warn'], 'right': ['fileencoding', 'fileformat'] },
+      \ 'inactive': { 'left': ['mode','filename','error','warn'], 'right': ['fileencoding', 'fileformat'] },
       \ 'compStateProducer': 'moline#get_comp_state',
       \ 'comps': {
           \ 'percent': {

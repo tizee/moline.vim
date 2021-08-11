@@ -199,7 +199,7 @@ function! moline#update(inactive) abort
   endif 
 endfunction
 
-function! moline#disable()
+function! moline#disable() abort
   let s:moline_state=3
   call setwinvar(0, '&statusline', '')
 endfunction
@@ -207,6 +207,8 @@ endfunction
 function! moline#toggle() abort
   if get(g:,'loaded_moline_vim',0) == 1
     call moline#update(0)
+  else
+    setl &statusline=''
   endif
 endfunction
 

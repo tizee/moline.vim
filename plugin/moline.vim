@@ -65,11 +65,11 @@ augroup moline
   if has('nvim') 
     autocmd TermOpen,FileChangedShellPost * call moline#update(0)
   endif
-  autocmd WinLeave,BufWinLeave * call moline#update(1)
+  autocmd WinLeave * call moline#update(1)
   " coc
-  autocmd User CocStatusChange,CocDiagnosticChange call moline#update(0)
+  autocmd User CocStatusChange,CocDiagnosticChange call moline#toggle()
   " GitGutter
-  autocmd User GitGutter call moline#update(0)
+  autocmd User GitGutter call moline#toggle()
 augroup END "moline
 
 let &cpo = s:save_cpo

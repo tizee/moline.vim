@@ -4,10 +4,14 @@ scriptencoding utf-8
 
 let s:default_moline= {
       \ 'colorscheme': 'dracula',
-      \ 'active': { 'left': ['mode','filename','error','warn'], 'right': ['vcs','line','char','fileencoding','fileformat'], },
-      \ 'inactive': { 'left': ['mode','filename','error','warn'], 'right': ['fileencoding', 'fileformat'] },
+      \ 'active': { 'left': ['mode','filename','error','warn','status'], 'right': ['vcs','line','char','fileencoding','fileformat'], },
+      \ 'inactive': { 'left': ['filename','error','warn','status'], 'right': ['fileencoding', 'fileformat'] },
       \ 'compStateProducer': 'moline#get_comp_state',
       \ 'comps': {
+        \ 'status': {
+          \ 'producer': 'moline#diagnostic#coc_status',
+          \ 'visible': 'moline#file#is_not_specialfile'
+          \},
           \ 'percent': {
           \  'producer': 'moline#file#filepercent',
           \  'visible': 'moline#file#is_not_specialfile',
@@ -199,7 +203,7 @@ function! moline#update(inactive) abort
   endif 
 endfunction
 
-function! moline#disable()
+function! moline#disable() abort
   let s:moline_state=3
   call setwinvar(0, '&statusline', '')
 endfunction
@@ -207,6 +211,8 @@ endfunction
 function! moline#toggle() abort
   if get(g:,'loaded_moline_vim',0) == 1
     call moline#update(0)
+  else
+    setl &statusline=''
   endif
 endfunction
 

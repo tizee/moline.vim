@@ -61,7 +61,7 @@ let s:special_filetype= {
       \}
 
 function! moline#file#is_not_specialfile() abort
-  if strlen(&ft)==0 || (has_key(s:special_filetype,&filetype) && s:is_not_term())
+  if has_key(s:special_filetype,&filetype) && s:is_not_term()
     return 0
   endif
   return 1

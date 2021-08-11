@@ -38,6 +38,9 @@ function! moline#vcs#git() abort
   let [a,m,r]=s:get_git_diff_hunk()
   let remote_icon = s:get_remote_icon()
   let current_branch = s:get_branch()
+  if len(current_branch)==0
+    return ''
+  endif 
   let msg = []
   if a > 0
     call add(msg, '%#Moline_git_added#%' . ' ' . s:git_status_icons['added'] . ' ' . a)

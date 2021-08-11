@@ -160,8 +160,14 @@ function! moline#file#readonly() abort
   return &readonly ? '' : ''
 endfunction
 
+" let s:pie=['○', '◔', '◑', '◕', '●']
+let s:stack= [' ', '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
 function! moline#file#filepercent() abort
-  return '%-2o'
+  let current_line = line(".")
+  let total_line = line("$") + 1
+  let index = len(s:stack) * 0.01 * current_line * 100 / total_line
+  let indicator = s:stack[float2nr(index)]
+  return indicator . ' %-2p%%'
 endfunction
 
 function! moline#file#fileformat() abort

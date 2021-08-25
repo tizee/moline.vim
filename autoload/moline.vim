@@ -1,7 +1,6 @@
 scriptencoding utf-8
 
 " TODO tab
-
 let s:default_moline= {
       \ 'colorscheme': 'dracula',
       \ 'active': { 'left': ['mode','filename','error','warn','status'], 'right': ['vcs','line','char','percent','fileencoding','fileformat'], },
@@ -10,8 +9,9 @@ let s:default_moline= {
       \ 'comps': {
         \ 'status': {
           \ 'producer': 'moline#diagnostic#coc_status',
-          \ 'visible': 'moline#file#is_not_specialfile'
-          \},
+          \ 'visible': 'moline#file#is_not_specialfile',
+          \ 'class': 'diagnostic',
+          \  },
           \ 'percent': {
           \  'producer': 'moline#file#filepercent',
           \  'visible': 'moline#file#is_not_specialfile',
@@ -65,7 +65,7 @@ let s:default_moline= {
           \},
       \}
 
-function! s:cache_config()
+function! s:cache_config() abort
   let s:moline = deepcopy(get(g:,'moline', {}))
   " default_moline merge into user defined moline
   for [key,value] in items(s:default_moline)
@@ -101,14 +101,14 @@ function! s:remove_invisible_comp(left,inactive) abort
   return res
 endfunction
 
-function! s:setup_moline()
+function! s:setup_moline() abort
   let s:option_statusline=&statusline
   call s:cache_config()
   " color scheme init
   call moline#highlight#init(s:moline.colorscheme)
 endfunction
 
-function! s:restore_statusline()
+function! s:restore_statusline() abort
   for i in range(1, winnr('$'))
     call setwinvar(i, '&statusline', s:option_statusline)
   endfor
@@ -119,7 +119,6 @@ function! s:is_active()
  return current==win_getid()
 endfunction
 
-" TODO use factory
 function! moline#get_comp_state(comp_name,inactive)
   if a:comp_name == 'warn' || a:comp_name == 'error'
     return a:comp_name
@@ -127,7 +126,7 @@ function! moline#get_comp_state(comp_name,inactive)
   return a:inactive?'inactive':'active'
 endfunction
 
-function! s:get_section_comps(section,left,inactive)
+function! s:get_section_comps(section,left,inactive) abort
   let res=''
   for f in a:section
     if has_key(s:moline.comps,f) " has comp func
@@ -137,8 +136,9 @@ function! s:get_section_comps(section,left,inactive)
         let minWidth = '%'. minWidth
       endif 
       let comp_class = get(s:moline.comps[f],'class','default')
+      "  acitve or inactive via compStateProducer func
       let comp_state = call(s:moline.compStateProducer,[f,a:inactive])
-      let hlGroup = '%#Moline_'.comp_class.'_'.comp_state.'#'
+      let hlGroup = s:build_hlgroup(comp_class,comp_state)
       " buffer dependent
       let comp = hlGroup ."%{%". producer ."()%}"
       if !a:left
@@ -163,10 +163,15 @@ function! s:get_section_comps(section,left,inactive)
   return res
 endfunction
 
-function! s:join_sections(left,right,inactive)
+function! s:build_hlgroup(class, state) abort
+  return '%#Moline_'.a:class.'_'.a:state.'#'
+endfunction
+
+function! s:join_sections(left,right,inactive) abort
   let left_res = s:get_section_comps(a:left,1,a:inactive)
   let right_res= s:get_section_comps(a:right,0,a:inactive)
-  return left_res. " %= ". right_res
+  let defaultHLGroup = s:build_hlgroup('default',a:inactive?'inactive':'active')
+  return left_res. defaultHLGroup . "%=". right_res
 endfunction
 
 function! s:build_statusline(inactive) abort
@@ -182,9 +187,6 @@ endfunction
 " 1 - update/build config 
 " 2 - render update
 " 3 - disable
-" 1 -> 2 
-" 2 -> 3
-" 3 -> 1
 let s:moline_state=1
 
 function! moline#update(inactive) abort

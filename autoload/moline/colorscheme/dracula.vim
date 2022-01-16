@@ -157,6 +157,17 @@ let s:colors = {
             \ 'ctermbg': s:palette.purple[1],
         \  },
         \ },
+      \ 'lsp': {
+        \ 'inactive': s:inactive,
+        \ 'active': {
+            \ 'cterm'   : 'bold',
+            \ 'gui'     : 'bold',
+            \ 'guifg': s:palette.pink[0],
+            \ 'guibg': s:palette.color08[0],
+            \ 'ctermfg': s:palette.pink[1],
+            \ 'ctermbg': s:palette.color08[1],
+        \   },
+      \ },
 \}
 
 function! moline#colorscheme#dracula#init() abort

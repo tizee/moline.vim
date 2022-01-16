@@ -3,10 +3,15 @@ scriptencoding utf-8
 " TODO tab
 let s:default_moline= {
       \ 'colorscheme': 'dracula',
-      \ 'active': { 'left': ['mode','filename','error','warn','status'], 'right': ['vcs','line','char','percent','fileencoding','fileformat'], },
+      \ 'active': { 'left': ['mode','filename','error','warn','status'], 'mid':['lsp'], 'right': ['vcs','line','char','percent','fileencoding','fileformat'], },
       \ 'inactive': { 'left': ['filename','error','warn','status'], 'right': ['fileencoding', 'fileformat'] },
       \ 'compStateProducer': 'moline#get_comp_state',
       \ 'comps': {
+          \ 'lsp': {
+          \  'producer': 'moline#diagnostic#coc_lsp',
+          \  'visible': 'moline#file#is_not_specialfile',
+          \ 'class': 'lsp',
+          \  },
         \ 'status': {
           \ 'producer': 'moline#diagnostic#coc_status',
           \ 'visible': 'moline#file#is_not_specialfile',
@@ -80,13 +85,13 @@ function! s:cache_config() abort
   endfor
 endfunction
 
-function! s:remove_invisible_comp(left,inactive) abort
+function! s:remove_invisible_comp(pos,inactive) abort
   let res = []
   let section = []
   if a:inactive
-    let section = copy(s:moline.inactive[a:left?'left':'right'])
+    let section = copy(get(s:moline.inactive,a:pos,[]))
   else
-    let section = copy(s:moline.active[a:left?'left':'right'])
+    let section = copy(get(s:moline.active,a:pos,[]))
   endif 
   for f in section
     if has_key(s:moline.comps,f) && has_key(s:moline.comps[f],'visible')
@@ -126,7 +131,7 @@ function! moline#get_comp_state(comp_name,inactive)
   return a:inactive?'inactive':'active'
 endfunction
 
-function! s:get_section_comps(section,left,inactive) abort
+function! s:get_section_comps(section,pos,inactive)
   let res=''
   for f in a:section
     if has_key(s:moline.comps,f) " has comp func
@@ -141,7 +146,7 @@ function! s:get_section_comps(section,left,inactive) abort
       let hlGroup = s:build_hlgroup(comp_class,comp_state)
       " buffer dependent
       let comp = hlGroup ."%{%". producer ."()%}"
-      if !a:left
+      if !a:pos=='left'
         if has_key(s:moline.comps[f],'sep')
           let res.=s:moline.comps[f]['sep']
           let res.="\ "
@@ -150,7 +155,7 @@ function! s:get_section_comps(section,left,inactive) abort
           let res.="\ "
       endif " right end
       let res.=comp
-      if a:left
+      if a:pos=='left'
         if has_key(s:moline.comps[f],'sep')
           let res.="\ "
           let res.=s:moline.comps[f]['sep']
@@ -167,20 +172,18 @@ function! s:build_hlgroup(class, state) abort
   return '%#Moline_'.a:class.'_'.a:state.'#'
 endfunction
 
-function! s:join_sections(left,right,inactive) abort
-  let left_res = s:get_section_comps(a:left,1,a:inactive)
-  let right_res= s:get_section_comps(a:right,0,a:inactive)
-  let defaultHLGroup = s:build_hlgroup('default',a:inactive?'inactive':'active')
-  return left_res. defaultHLGroup . "%=". right_res
-endfunction
-
 function! s:build_statusline(inactive) abort
-  let left_section = s:remove_invisible_comp(1,a:inactive)
-  let right_section = s:remove_invisible_comp(0,a:inactive)
-  let res = s:join_sections(left_section,right_section,a:inactive)
-  unlet left_section
-  unlet right_section
-  return res
+  let fill_section = '%#Moline_default_active#%=' 
+  let left_section = s:remove_invisible_comp('left',a:inactive)
+  let right_section = s:remove_invisible_comp('right',a:inactive)
+  let mid_section = s:remove_invisible_comp('mid', a:inactive)
+  let left_section = s:get_section_comps(left_section,'left',a:inactive)
+  let right_section = s:get_section_comps(right_section,'right',a:inactive)
+  if len(mid_section) > 0
+    let mid_section = s:get_section_comps(mid_section,'mid',a:inactive)
+    return left_section . fill_section . mid_section . fill_section . right_section
+  endif
+  return left_section .  " %= " . right_section
 endfunction
 
 " moline status: 

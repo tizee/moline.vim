@@ -12,3 +12,8 @@ Yet another status line plugin. I create it just for eye candy.
   - untracked/modifed/deleted numbers
 - Diagnostic: Warning/Error
   - require COC.vim
+
+## Roadmap
+
+- [x] Current lsp
+- [ ] Tab style

@@ -55,7 +55,7 @@ function! moline#vcs#git() abort
     call add(msg, '%#Moline_git_icon#%' . ' ' . remote_icon)
   endif
   if winwidth(0) > 80 && !empty(current_branch)
-    call add(msg, current_branch)
+    call add(msg, current_branch . ' ')
   endif 
   return join(msg, ' ')
 endfunction
@@ -75,7 +75,7 @@ function! s:get_branch()
   if exists('*FugitiveHead')
     return FugitiveHead() 
   endif 
-  return system('git branch --show-current')
+  return system('git branch --show-current') . ' '
 endfunction
 
 function! s:get_remote_icon() abort

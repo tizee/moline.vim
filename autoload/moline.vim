@@ -15,7 +15,6 @@ let s:default_moline= {
         \ 'status': {
           \ 'producer': 'moline#diagnostic#coc_status',
           \ 'visible': 'moline#file#is_not_specialfile',
-          \ 'class': 'diagnostic',
           \  },
           \ 'percent': {
           \  'producer': 'moline#file#filepercent',
@@ -146,13 +145,14 @@ function! s:get_section_comps(section,pos,inactive)
       let hlGroup = s:build_hlgroup(comp_class,comp_state)
       " buffer dependent
       let comp = hlGroup ."%{%". producer ."()%}"
+      let fill_section = '%#Moline_default_active# ' 
       if !a:pos=='left'
         if has_key(s:moline.comps[f],'sep')
           let res.=s:moline.comps[f]['sep']
           let res.="\ "
         endif 
        else
-          let res.="\ "
+          let res.=fill_section
       endif " right end
       let res.=comp
       if a:pos=='left'
@@ -161,7 +161,7 @@ function! s:get_section_comps(section,pos,inactive)
           let res.=s:moline.comps[f]['sep']
         endif 
        else
-          let res.="\ "
+          let res.=fill_section
       endif  " left end
     endif
   endfor

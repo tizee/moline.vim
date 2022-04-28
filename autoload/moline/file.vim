@@ -2,21 +2,34 @@
 " - It accompanied me along the way writing this pluign
 
 function! s:is_not_term()
-  return mode()!='t'
+  if mode()=='t' 
+    return true
+  endif
+  return &buftype ==# 'terminal'
+endfunction
+
+function! moline#file#update_style_to_mode_state(edit_mode,comp_name) abort
+  let state = get(a:edit_mode,'state','active')
+  " udpate highlight when changed
+  execute('hi! link Moline_'.a:comp_name.'_active Moline_'.a:comp_name.'_'.state)
+endfunction
+
+function! s:get_mode()
+  return get(g:moline_buffer_modes,mode(),{})
 endfunction
 
 function! moline#file#mode() abort
-  let mode = get(g:moline_buffer_modes,mode(),{})
-  let state = get(mode,'state','active')
-  " udpate highlight when changed
-  execute('hi! link Moline_mode_active Moline_mode_'.state)
-  return ' ' . get(mode,'txt', '??')
+  let edit_mode = s:get_mode()
+  call moline#file#update_style_to_mode_state(edit_mode,'mode')
+  return get(l:edit_mode,'txt', '?')
 endfunction
 
+" should not use this
+" since vim redraws statusline calls frequently
 let s:filesize_kb=1024
 let s:filesize_mb=1024*1024
 let s:filesize_gb=1024*1024*1024
-function! moline#file#fizesize() abort
+function! moline#file#filesize() abort
   let file=expand('%:p')
   if empty(file)
     return ''
@@ -69,10 +82,10 @@ endfunction
 
 " construct info for filetypes that have special meaning
 function! moline#file#get_specialfile_info() abort
-  let ft=&filetype
-  if has_key(s:special_filetype,ft)
-    let icon = s:special_filetype[ft]
-    let file_handler = s:filetype_handler_factory(ft)
+  let file_type=&ft
+  if has_key(s:special_filetype,file_type)
+    let icon = s:special_filetype[file_type]
+    let file_handler = s:filetype_handler_factory(file_type)
     let other = ''
     if !empty(file_handler)
       let other = call(file_handler,[])
@@ -112,42 +125,43 @@ endfunction
 " }}}
 
 function! moline#file#filename() abort
-  let ft=moline#file#filetype()
-  let ro = moline#file#readonly()
+  let file_type=moline#file#filetype()
   let modified=moline#file#modified()
-  let filename=winwidth(0)>80?moline#file#fizesize():''
+  let filename=''
   if !empty(modified)
-    let filename .=' ' . modified .' '
+    let filename .=modified.' '
   endif
-  let filename.=winwidth(0)>120?'%-10t':expand('%:t')
-  if moline#file#can_show_wordcount()
-    let ft .= ' ' . moline#file#wordcount()
+  " let filename.=winwidth(0)>120?'%10t':expand('%:t')
+  let filename.=expand('%:p')[-15:]
+  let filesize=moline#file#filesize()
+  if s:need_wordcount()
+    let file_type.=' '.moline#file#wordcount()
   endif
-  if !empty(ro)
-    let ft .= ' ' . ro
-  endif
-  return winwidth(0)>50? (filename . ' ' . ft ): filename 
+  return filesize.' '.filename.' '.file_type
 endfunction
 
 function! moline#file#modified() abort
   if &modified && &modifiable 
-    return ''
+    return '[+]'
   endif
-  return ''
+  return &readonly ? '[]' : '[ ]'
 endfunction
 
-function! moline#file#line() abort
+function! moline#file#rowcol() abort
   " %3l - line number, 3 dight fixed width
   " c - column number (not visual virtual column), 2 fixed width, left
   " justified
-  return winwidth(0)>100?'  %-3l  %-2c ':''
+  return winwidth(0)>100?'%-3l%-2c':''
 endfunction
 
-function! moline#file#char() abort
+function! moline#file#fileedit() abort
   " %3l - line number, 3 dight fixed width
   " c - column number (not visual virtual column), 2 fixed width, left
   " justified
-  return winwidth(0)>100?' '.'%-4B':''
+  let hex_code = winwidth(0)>100?' '.'%-4B':''
+  let rowcol = moline#file#rowcol()
+  let percent = moline#file#filepercent()
+  return hex_code.percent.' '.rowcol
 endfunction
 
 function! moline#file#filetype() abort
@@ -167,18 +181,18 @@ function! moline#file#filepercent() abort
   let total_line = line("$") + 1
   let index = len(s:stack) * 0.01 * current_line * 100 / total_line
   let indicator = s:stack[float2nr(index)]
-  return indicator . ' %-2p%%'
+  return indicator.'%3p%%'
 endfunction
 
 function! moline#file#fileformat() abort
-  return &ff
+  let edit_mode=s:get_mode()
+  let file_encoding=&fenc !=# '' ? &fenc : &enc
+  let file_format="[".&ff."]"
+  call moline#file#update_style_to_mode_state(edit_mode, 'fileformat')
+  return file_encoding.file_format
 endfunction
 
-function! moline#file#fileencoding() abort
-  return winwidth(0) > 50 ? (&fenc !=# '' ? &fenc : &enc) : ''
-endfunction
-
-function! moline#file#can_show_wordcount() abort
+function! s:need_wordcount() abort
   return (&filetype == 'markdown' || &filetype == 'txt') && winwidth(0)>=120
 endfunction
 

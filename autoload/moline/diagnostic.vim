@@ -20,24 +20,30 @@ function! moline#diagnostic#coc_status() abort
   return get(g:, 'coc_status', '')
 endfunction
 
-" get current services
+" get current running services
 function! s:get_coc_running_services() abort
+  if &ft == '' | return "" | endif
   if exists("*CocAction") && !get(g:, 'coc_service_initialized', 0)
-    return []
+    return ""
   endif
-  let service_list = CocAction("services")
-  return copy(filter(service_list, {idx, val -> match(get(val,'state','init'),'running')>=0 }))
+  if win_gettype() == '' 
+    if &buftype ==# 'terminal' || &buftype ==# 'nofile'
+          \ || &buftype ==# 'nofile'
+          \ || &buftype ==# 'quickfix'
+          \ || &buftype ==# 'prompt'
+          \ || &buftype ==# 'acwrite'
+          \ || &buftype ==# 'help'
+      return ""
+    endif
+  endif 
+  return get(g:,"coc_running_services","")
 endfunction
 
 function! moline#diagnostic#coc_lsp() abort
-  let srv_list = s:get_coc_running_services()
-  let srv_names=[]
-  if len(srv_list) > 0
-    " only show the running lsp
-    for srv in srv_list
-      let srv_names = add(srv_names,get(srv,'id',''))
-    endfor
-    return ' LSP: ' . join(srv_names," ")
+  let running_services = s:get_coc_running_services()
+  let lsp_str='No Active LSP'
+  if len(running_services) > 0
+    let lsp_str=running_services
   endif
-  return 'No Active LSP'
+  return ' LSP:'.' '.lsp_str
 endfunction

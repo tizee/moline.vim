@@ -6,7 +6,7 @@ let s:default_remote_icons = {
 
 let s:default_git_status_icons = {
       \ 'added': '',
-      \ 'modified': '柳',
+      \ 'modified': '',
       \ 'removed': '',
       \}
 
@@ -42,17 +42,11 @@ function! moline#vcs#git() abort
     return ''
   endif 
   let msg = []
-  if a > 0
-    call add(msg, '%#Moline_git_added#%' . ' ' . s:git_status_icons['added'] . ' ' . a)
-  endif
-  if m > 0
-    call add(msg, '%#Moline_git_modified#%' . ' '. s:git_status_icons['modified'] . ' ' . m)
-  endif
-  if r > 0
-    call add(msg, '%#Moline_git_removed#%'. ' ' . s:git_status_icons['removed'] . ' ' . r)
-  endif 
+  call add(msg, '%#Moline_git_added#%' . ' ' . s:git_status_icons['added'].' '.trim(a))
+  call add(msg, '%#Moline_git_modified#%' . ' '. s:git_status_icons['modified'].' '.trim(m))
+  call add(msg, '%#Moline_git_removed#%'. ' ' . s:git_status_icons['removed'].' '.trim(r))
   if !empty(remote_icon)
-    call add(msg, '%#Moline_git_icon#%' . ' ' . remote_icon)
+    call add(msg, '%#Moline_git_icon#%'.' '.remote_icon)
   endif
   if winwidth(0) > 80 && !empty(current_branch)
     call add(msg, current_branch . ' ')

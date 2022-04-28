@@ -19,29 +19,29 @@ let s:palette = {
     \ "yellow"  : ['#F1FA8C', 228],
     \  }
 
-let s:inactive = {
-      \ 'gui'   : 'italic',
-      \ 'cterm' : 'italic',
-      \ 'guifg'   : s:palette.color08[0],
-      \ 'guibg'   : s:palette.color01[0],
-      \ 'ctermfg' : s:palette.color08[1],
-      \ 'ctermbg' : s:palette.color01[1],
-      \}
-
-let s:colors = {
-      \ 'default': {
-        \ 'inactive': s:inactive,
-        \ 'active': {
-              \ 'cterm'   : 'bold',
+let s:active={ 'cterm'   : 'bold',
               \ 'gui'     : 'bold',
               \ 'guifg'   : s:palette.color01[0],
               \ 'guibg'   : s:palette.color08[0],
               \ 'ctermfg' : s:palette.color01[1],
               \ 'ctermbg' : s:palette.color08[1],
-          \ },
+              \}
+let s:inactive = {
+      \ 'gui'   : 'italic',
+      \ 'cterm' : 'italic',
+      \ 'guifg'   : s:palette.color08[0],
+      \ 'guibg'   : s:palette.color06[0],
+      \ 'ctermfg' : s:palette.color08[1],
+      \ 'ctermbg' : s:palette.color06[1],
+      \}
+
+let s:colors = {
+      \ 'default': {
+        \ 'inactive': s:inactive,
+        \ 'active': s:active,
       \},
       \  'mode': {
-              \ 'active': s:inactive, 
+              \ 'active': s:inactive,
               \ 'inactive': s:inactive,
               \ 'normal': {
               \ 'cterm'   : 'bold',

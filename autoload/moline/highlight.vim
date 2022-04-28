@@ -13,3 +13,9 @@ function! moline#highlight#group(group_name,state,kvs) abort
   execute('highlight ' . group)
   " execute('autocmd VimEnter,ColorScheme * hi ' . group)
 endfunction
+
+function! s:getGruvColor(group)
+  let guiColor = synIDattr(hlID(a:group), "fg", "gui") 
+  let termColor = synIDattr(hlID(a:group), "fg", "cterm") 
+  return [ guiColor, termColor ]
+endfunction

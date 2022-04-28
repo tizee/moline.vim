@@ -1,10 +1,29 @@
 scriptencoding utf-8
+"""  Configuration options
+" 1. colorscheme: colorscheme name requires string
+" 
+" 2. display sections
+" 2.1 current buffer
+" active: {
+"  left: left section requires array of components
+"  mid: middle section requires array of components
+"  right: right section requires array of components
+" }
+" 2.2  inactive buffers
+" inactive: {
+"  left: left section requires array of components
+"  mid: middle section requires array of components
+"  right: right section requires array of components
+" }
+" 2.3 
+" compStateProducer
+"
+"""
 
-" TODO tab
 let s:default_moline= {
-      \ 'colorscheme': 'dracula',
-      \ 'active': { 'left': ['mode','filename','error','warn','status'], 'mid':['lsp'], 'right': ['vcs','line','char','percent','fileencoding','fileformat'], },
-      \ 'inactive': { 'left': ['filename','error','warn','status'], 'right': ['fileencoding', 'fileformat'] },
+      \ 'colorscheme': 'gruvbox',
+      \ 'active': { 'left': ['mode','filename','error','warn'], 'mid':['lsp'], 'right': ['vcs','fileedit','fileformat'], },
+      \ 'inactive': { 'left': ['filename','error','warn'],'mid':['status'], 'right': [ 'fileformat'] },
       \ 'compStateProducer': 'moline#get_comp_state',
       \ 'comps': {
           \ 'lsp': {
@@ -16,27 +35,19 @@ let s:default_moline= {
           \ 'producer': 'moline#diagnostic#coc_status',
           \ 'visible': 'moline#file#is_not_specialfile',
           \  },
-          \ 'percent': {
-          \  'producer': 'moline#file#filepercent',
-          \  'visible': 'moline#file#is_not_specialfile',
-          \  },
           \ 'vcs': {
           \  'producer': 'moline#vcs#git',
           \  'visible': 'moline#file#is_not_specialfile',
           \  },
-          \ 'char': {
-          \  'producer': 'moline#file#char',
-          \  'visible': 'moline#file#is_not_specialfile',
-          \  },
-          \ 'line': {
-          \  'producer': 'moline#file#line',
+          \ 'fileedit': {
+          \  'producer': 'moline#file#fileedit',
           \  'visible': 'moline#file#is_not_specialfile',
           \  },
           \  'mode': {
           \  'producer': 'moline#file#mode',
-          \  'minWidth': '-3',
           \  'visible': 'moline#file#is_not_specialfile',
           \  'class': 'mode',
+          \  'left_sep':'█'
           \  },
           \ 'filename': {
           \  'producer': 'moline#file#filename',
@@ -47,6 +58,7 @@ let s:default_moline= {
           \ 'special_files':{
           \  'producer': 'moline#file#get_specialfile_info',
           \  'class': 'filename',
+          \  'sep':'█'
           \},
           \ 'error': {
           \  'producer': 'moline#diagnostic#coc_error',
@@ -58,13 +70,11 @@ let s:default_moline= {
           \  'visible': 'moline#file#is_not_specialfile',
           \  'class': 'diagnostic',
           \  },
-          \ 'fileencoding': {
-          \  'producer': 'moline#file#fileencoding',
-          \  'visible': 'moline#file#is_not_specialfile',
-          \  },
           \ 'fileformat': {
           \  'producer': 'moline#file#fileformat',
           \  'visible': 'moline#file#is_not_specialfile',
+          \  'class': 'fileformat',
+          \  'right_sep':'█'
           \  },
           \},
       \}
@@ -85,24 +95,27 @@ function! s:cache_config() abort
 endfunction
 
 function! s:remove_invisible_comp(pos,inactive) abort
-  let res = []
+  let result = []
   let section = []
   if a:inactive
-    let section = copy(get(s:moline.inactive,a:pos,[]))
+    let section = get(s:moline.inactive,a:pos,[])
   else
-    let section = copy(get(s:moline.active,a:pos,[]))
+    let section = get(s:moline.active,a:pos,[])
   endif 
-  for f in section
-    if has_key(s:moline.comps,f) && has_key(s:moline.comps[f],'visible')
-      let visible=call(s:moline.comps[f]['visible'],[])
+  " iterate over section by calling component function
+  for name in section
+    "  call only when there is a implementation
+    if has_key(s:moline.comps,name) && has_key(s:moline.comps[name],'visible')
+      " whether visible
+      let visible=call(s:moline.comps[name]['visible'],[])
       if visible
-        call add(res, f)
-      elseif has_key(s:moline.comps[f],'fallback')
-        call add(res, s:moline.comps[f]['fallback'])
+        call add(result, name)
+      elseif has_key(s:moline.comps[name],'fallback')
+        call add(result, s:moline.comps[name]['fallback'])
       endif
     endif
   endfor
-  return res
+  return result
 endfunction
 
 function! s:setup_moline() abort
@@ -123,49 +136,54 @@ function! s:is_active()
  return current==win_getid()
 endfunction
 
+" use to generate name of state for corresponding highlight group
 function! moline#get_comp_state(comp_name,inactive)
   if a:comp_name == 'warn' || a:comp_name == 'error'
     return a:comp_name
   endif
-  return a:inactive?'inactive':'active'
+  return a:inactive?"inactive":"active"
 endfunction
 
-function! s:get_section_comps(section,pos,inactive)
-  let res=''
-  for f in a:section
-    if has_key(s:moline.comps,f) " has comp func
-      let producer=s:moline.comps[f].producer
-      let minWidth = get(s:moline.comps[f],'minWidth','')
-      if !empty(minWidth)
-        let minWidth = '%'. minWidth
-      endif 
-      let comp_class = get(s:moline.comps[f],'class','default')
-      "  acitve or inactive via compStateProducer func
-      let comp_state = call(s:moline.compStateProducer,[f,a:inactive])
-      let hlGroup = s:build_hlgroup(comp_class,comp_state)
-      " buffer dependent
-      let comp = hlGroup ."%{%". producer ."()%}"
-      let fill_section = '%#Moline_default_active# ' 
-      if !a:pos=='left'
-        if has_key(s:moline.comps[f],'sep')
-          let res.=s:moline.comps[f]['sep']
-          let res.="\ "
-        endif 
-       else
-          let res.=fill_section
-      endif " right end
-      let res.=comp
-      if a:pos=='left'
-        if has_key(s:moline.comps[f],'sep')
-          let res.="\ "
-          let res.=s:moline.comps[f]['sep']
-        endif 
-       else
-          let res.=fill_section
-      endif  " left end
+function! s:render_comp(component,name,pos,inactive) abort
+    let result=''
+    let producer=a:component.producer
+    " get class name of highlight group
+    let comp_class = get(a:component,'class','default')
+    "  acitve or inactive via compStateProducer func
+    let comp_state = call(s:moline.compStateProducer,[a:name,a:inactive])
+    let comp_hlgroup= s:build_hlgroup(comp_class,comp_state)
+    " buffer dependent
+    let comp_str= comp_hlgroup ."%{%". producer ."()%}"
+    " resultet style
+
+    let fill_section = a:inactive?'%#Moline_default_inactive#':'%#Moline_default_active#'
+    let result.=fill_section
+    if get(a:component,'left_sep') != ''
+        let result.=comp_hlgroup
+        let result.=get(a:component,'left_sep','')
+    elseif get(a:component,'sep') != ''
+        let result.=comp_hlgroup
+        let result.=get(a:component,'sep','')
+    endif
+    let result.=' '.comp_str.' '
+    if get(a:component,'right_sep') != ''
+        let result.=get(a:component,'right_sep','')
+    elseif get(a:component,'sep') != ''
+        let result.=get(a:component,'sep','')
+    endif
+    return result
+endfunction
+
+" render component to vim's statusline string
+function! s:get_section_comps(section,pos,inactive) abort
+  let result=""
+  for name in a:section
+    if has_key(s:moline.comps,name) " has comp func
+      let result.=s:render_comp(s:moline.comps[name],name,a:pos, a:inactive)
     endif
   endfor
-  return res
+  echomsg 
+  return result
 endfunction
 
 function! s:build_hlgroup(class, state) abort
@@ -181,31 +199,39 @@ function! s:build_statusline(inactive) abort
   let right_section = s:get_section_comps(right_section,'right',a:inactive)
   if len(mid_section) > 0
     let mid_section = s:get_section_comps(mid_section,'mid',a:inactive)
-    return left_section . fill_section . mid_section . fill_section . right_section
+    return left_section.fill_section.mid_section.fill_section.right_section
   endif
-  return left_section .  " %= " . right_section
+  return left_section." %= ".right_section
 endfunction
 
 " moline status: 
-" 1 - update/build config 
+" 1 - uninitialized
 " 2 - render update
 " 3 - disable
 let s:moline_state=1
 
-function! moline#update(inactive) abort
-  if get(g:,'loaded_moline_vim',0) != 1
+function! s:skip_wintype() abort
+  return win_gettype() ==# 'popup' ||win_gettype() ==# 'autocmd'
+endfunction
+
+function! moline#update() abort
+  if s:skip_wintype()
     return
   endif
-  if s:moline_state == 1
+  if s:moline_state
+    if s:moline_state == 3
+      call s:restore_statusline()
+      return
+    endif
+    " copy moline config, init colorscheme
     call s:setup_moline()
-    let s:moline_state = 2
   endif
-  if s:moline_state == 2
-    let line=s:build_statusline(a:inactive)
-    call setwinvar(winnr(), '&statusline',line)
-  elseif s:moline_state == 3
-    call s:restore_statusline()
-  endif 
+    " set statusline for all windows
+    let current_w= winnr()
+    let modes= winnr('$') == 1 && current_w > 0? [s:build_statusline(0)]:[s:build_statusline(0),s:build_statusline(1)]
+    for i in range(1, winnr('$'))
+      call setwinvar(i, '&statusline',modes[i!=current_w])
+    endfor
 endfunction
 
 function! moline#disable() abort

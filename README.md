@@ -11,7 +11,7 @@ Yet another status line plugin. I create it just for eye candy.
   - branch icon
   - untracked/modifed/deleted numbers
 - Diagnostic: Warning/Error
-  - require COC.vim
+  - require forked Coc.nvim
 
 ## Roadmap
 

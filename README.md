@@ -2,7 +2,7 @@
 
 Yet another status line plugin. I create it just for eye candy.
 
-![demo](https://user-images.githubusercontent.com/33030965/149657098-e1d795d2-2b95-4907-bbd3-5e9dbe8e17d4.png)
+![demo](https://user-images.githubusercontent.com/33030965/165651248-77f56d9d-4ae6-4f38-8ea1-29065d5cd983.png)
 
 ## Features
 
@@ -15,5 +15,5 @@ Yet another status line plugin. I create it just for eye candy.
 
 ## Roadmap
 
-- [x] Current lsp
-- [ ] Tab style
+- [x] Current running lsp services
+~~- [ ] Tab style~~

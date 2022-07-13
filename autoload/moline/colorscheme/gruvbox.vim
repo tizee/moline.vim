@@ -56,8 +56,8 @@ let s:active={ 'cterm'   : 'bold',
               \ 'ctermbg' : s:palette.dark2[1],
               \}
 let s:inactive = {
-      \ 'gui'   : 'italic',
-      \ 'cterm' : 'italic',
+      \ 'gui'   : 'bold',
+      \ 'cterm' : 'bold',
       \ 'guifg'   : s:palette.dark0[0],
       \ 'guibg'   : s:palette.dark4[0],
       \ 'ctermfg' : s:palette.dark0[1],

@@ -1,5 +1,4 @@
-" - I love the song 热爱105°C的你
-" - It accompanied me along the way writing this pluign
+scriptencoding utf-8
 
 function! s:is_term()
   return &buftype == 'terminal'
@@ -51,7 +50,7 @@ function! moline#file#buffernumber() abort
   for i in range(1, bufnr('$'))
     if bufexists(i) && buflisted(i)
       call insert(buffers, i)
-    endif 
+    endif
   endfor
   for i in range(0, len(buffers)-1)
     if buffers[i] == bufnr('')
@@ -86,7 +85,7 @@ function! moline#file#get_specialfile_info() abort
     let other = ''
     if !empty(file_handler)
       let other = call(file_handler,[])
-    endif 
+    endif
     return icon . ' ' . other
   elseif s:is_term()
     let icon = s:special_filetype['terminal']
@@ -104,7 +103,7 @@ let s:special_filetyle_handler={
 function! s:filetype_handler_factory(ft)
   if has_key(s:special_filetyle_handler,a:ft)
     return s:special_filetyle_handler[a:ft]
-  endif 
+  endif
   return ''
 endfunction
 
@@ -138,7 +137,7 @@ function! moline#file#filename() abort
 endfunction
 
 function! moline#file#modified() abort
-  if &modified && &modifiable 
+  if &modified && &modifiable
     return '[+]'
   endif
   return &readonly ? '[]' : '[ ]'

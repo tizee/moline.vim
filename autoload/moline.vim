@@ -1,7 +1,7 @@
 scriptencoding utf-8
 """  Configuration options
 " 1. colorscheme: colorscheme name requires string
-" 
+"
 " 2. display sections
 " 2.1 current buffer
 " active: {
@@ -15,7 +15,7 @@ scriptencoding utf-8
 "  mid: middle section requires array of components
 "  right: right section requires array of components
 " }
-" 2.3 
+" 2.3
 " compStateProducer
 "
 """
@@ -29,7 +29,7 @@ let s:default_moline= {
           \ 'lsp': {
           \  'producer': 'moline#diagnostic#coc_lsp',
           \  'visible': 'moline#file#is_not_specialfile',
-          \ 'class': 'lsp',
+          \  'class': 'lsp',
           \  },
         \ 'status': {
           \ 'producer': 'moline#diagnostic#coc_status',
@@ -41,7 +41,6 @@ let s:default_moline= {
           \  },
           \ 'fileedit': {
           \  'producer': 'moline#file#fileedit',
-          \  'visible': 'moline#file#is_not_specialfile',
           \  },
           \  'mode': {
           \  'producer': 'moline#file#mode',
@@ -84,11 +83,11 @@ function! s:cache_config() abort
     if type(value) == 4 " dict
       if !has_key(s:moline,key)
         let s:moline[key]={}
-      endif 
+      endif
       call extend(s:moline[key],value,'keep')
     elseif !has_key(s:moline,key)
       let s:moline[key] = value " use default components if not defined
-    endif 
+    endif
   endfor
 endfunction
 
@@ -99,11 +98,11 @@ function! s:remove_invisible_comp(pos,inactive) abort
     let section = get(s:moline.inactive,a:pos,[])
   else
     let section = get(s:moline.active,a:pos,[])
-  endif 
+  endif
   " iterate over section by calling component function
   for name in section
     "  call only when there is a implementation
-    if has_key(s:moline.comps,name) 
+    if has_key(s:moline.comps,name)
       if has_key(s:moline.comps[name],'visible')
         " whether visible
         let visible=call(s:moline.comps[name]['visible'],[])
@@ -112,7 +111,7 @@ function! s:remove_invisible_comp(pos,inactive) abort
         elseif has_key(s:moline.comps[name],'fallback')
           call add(result, s:moline.comps[name]['fallback'])
         endif
-      else 
+      else
         " always visible
         call add(result, name)
       endif
@@ -185,7 +184,7 @@ function! s:get_section_comps(section,pos,inactive) abort
       let result.=s:render_comp(s:moline.comps[name],name,a:pos, a:inactive)
     endif
   endfor
-  echomsg 
+  echomsg
   return result
 endfunction
 
@@ -194,7 +193,7 @@ function! s:build_hlgroup(class, state) abort
 endfunction
 
 function! s:build_statusline(inactive) abort
-  let fill_section = '%#Moline_default_active#%=' 
+  let fill_section = '%#Moline_default_active#%='
   let left_section = s:remove_invisible_comp('left',a:inactive)
   let right_section = s:remove_invisible_comp('right',a:inactive)
   let mid_section = s:remove_invisible_comp('mid', a:inactive)
@@ -207,7 +206,7 @@ function! s:build_statusline(inactive) abort
   return left_section." %= ".right_section
 endfunction
 
-" moline status: 
+" moline status:
 " 1 - uninitialized
 " 2 - render update
 " 3 - disable

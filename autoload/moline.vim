@@ -23,7 +23,7 @@ scriptencoding utf-8
 let s:default_moline= {
       \ 'colorscheme': 'gruvbox',
       \ 'active': { 'left': ['mode','filename','error','warn'], 'mid':['lsp'], 'right': ['vcs','fileedit','fileformat'], },
-      \ 'inactive': { 'left': ['filename','error','warn'],'mid':['status'], 'right': [ 'fileformat'] },
+      \ 'inactive': { 'left': ['mode','filename','error','warn'],'mid':[], 'right': ['fileedit', 'fileformat'] },
       \ 'compStateProducer': 'moline#get_comp_state',
       \ 'comps': {
           \ 'lsp': {
@@ -58,7 +58,6 @@ let s:default_moline= {
           \ 'special_files':{
           \  'producer': 'moline#file#get_specialfile_info',
           \  'class': 'filename',
-          \  'sep':'█'
           \},
           \ 'error': {
           \  'producer': 'moline#diagnostic#coc_error',
@@ -72,7 +71,6 @@ let s:default_moline= {
           \  },
           \ 'fileformat': {
           \  'producer': 'moline#file#fileformat',
-          \  'visible': 'moline#file#is_not_specialfile',
           \  'class': 'fileformat',
           \  'right_sep':'█'
           \  },
@@ -105,13 +103,18 @@ function! s:remove_invisible_comp(pos,inactive) abort
   " iterate over section by calling component function
   for name in section
     "  call only when there is a implementation
-    if has_key(s:moline.comps,name) && has_key(s:moline.comps[name],'visible')
-      " whether visible
-      let visible=call(s:moline.comps[name]['visible'],[])
-      if visible
+    if has_key(s:moline.comps,name) 
+      if has_key(s:moline.comps[name],'visible')
+        " whether visible
+        let visible=call(s:moline.comps[name]['visible'],[])
+        if visible
+          call add(result, name)
+        elseif has_key(s:moline.comps[name],'fallback')
+          call add(result, s:moline.comps[name]['fallback'])
+        endif
+      else 
+        " always visible
         call add(result, name)
-      elseif has_key(s:moline.comps[name],'fallback')
-        call add(result, s:moline.comps[name]['fallback'])
       endif
     endif
   endfor

@@ -1,11 +1,8 @@
 " - I love the song 热爱105°C的你
 " - It accompanied me along the way writing this pluign
 
-function! s:is_not_term()
-  if mode()=='t' 
-    return true
-  endif
-  return &buftype ==# 'terminal'
+function! s:is_term()
+  return &buftype == 'terminal'
 endfunction
 
 function! moline#file#update_style_to_mode_state(edit_mode,comp_name) abort
@@ -74,10 +71,10 @@ let s:special_filetype= {
       \}
 
 function! moline#file#is_not_specialfile() abort
-  if has_key(s:special_filetype,&filetype) && s:is_not_term()
-    return 0
+  if has_key(s:special_filetype,&filetype) || s:is_term()
+    return v:false
   endif
-  return 1
+  return v:true
 endfunction
 
 " construct info for filetypes that have special meaning
@@ -91,11 +88,11 @@ function! moline#file#get_specialfile_info() abort
       let other = call(file_handler,[])
     endif 
     return icon . ' ' . other
-  elseif mode() == 't'
+  elseif s:is_term()
     let icon = s:special_filetype['terminal']
     return icon
   endif
-  return ''
+  return expand('%')
 endfunction
 
 let s:special_filetyle_handler={

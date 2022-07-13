@@ -60,8 +60,7 @@ let g:moline_buffer_modes = {
 
 augroup moline
   autocmd!
-  " basic
-  autocmd BufEnter,BufDelete,WinEnter,FileChangedShellPost * call moline#update()
+  autocmd FileType,TermEnter,BufEnter,BufDelete,WinEnter,FileChangedShellPost * call moline#update()
   autocmd ColorScheme * call moline#update()
 augroup END "moline
 

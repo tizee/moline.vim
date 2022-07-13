@@ -106,7 +106,7 @@ function! s:remove_invisible_comp(pos,inactive) abort
       if has_key(s:moline.comps[name],'visible')
         " whether visible
         let visible=call(s:moline.comps[name]['visible'],[])
-        if visible
+        if visible == v:true
           call add(result, name)
         elseif has_key(s:moline.comps[name],'fallback')
           call add(result, s:moline.comps[name]['fallback'])
@@ -192,6 +192,8 @@ function! s:build_hlgroup(class, state) abort
   return '%#Moline_'.a:class.'_'.a:state.'#'
 endfunction
 
+" 1. remove invisible components according to conditions
+" 2. render visible components
 function! s:build_statusline(inactive) abort
   let fill_section = '%#Moline_default_active#%='
   let left_section = s:remove_invisible_comp('left',a:inactive)

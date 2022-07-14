@@ -60,7 +60,11 @@ let g:moline_buffer_modes = {
 
 augroup moline
   autocmd!
-  autocmd FileType,TermEnter,BufEnter,BufDelete,WinEnter,FileChangedShellPost * call moline#update()
+  if has("nvim")
+    autocmd FileType,TermEnter,BufEnter,BufDelete,WinEnter,FileChangedShellPost * call moline#update()
+  else
+    autocmd FileType,BufEnter,BufDelete,WinEnter,FileChangedShellPost * call moline#update()
+  endif
   autocmd ColorScheme * call moline#update()
 augroup END "moline
 

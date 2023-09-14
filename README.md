@@ -4,6 +4,11 @@ Yet another status line plugin. I create it just for eye candy.
 
 ![demo](https://user-images.githubusercontent.com/33030965/165651248-77f56d9d-4ae6-4f38-8ea1-29065d5cd983.png)
 
+## Requirements
+
+- NerdFont >= 3.0.0
+- vim-devicons
+
 ## Features
 
 - Git status (require fugitive.vim and GitGutter)
@@ -16,4 +21,4 @@ Yet another status line plugin. I create it just for eye candy.
 ## Roadmap
 
 - [x] Current running lsp services
-~~- [ ] Tab style~~
+- [ ] Tab style

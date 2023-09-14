@@ -62,10 +62,10 @@ endfunction
 
 " speical files {{{
 let s:special_filetype= {
-      \  'help' : ' HELP',
+      \  'help' : '󰞋 HELP',
       \  'nerdtree': ' MENU',
       \  'startify': ' DASHBOARD',
-      \  'qf': 'פֿ QUICKFIX',
+      \  'qf': '󰏬 QUICKFIX',
       \  'terminal': ' Terminal'
       \}
 
@@ -128,36 +128,49 @@ function! moline#file#filename() abort
     let filename .=modified.' '
   endif
   " let filename.=winwidth(0)>120?'%10t':expand('%:t')
+	" the last 15 characters
   let filename.=expand('%:p')[-15:]
   let filesize=moline#file#filesize()
   if s:need_wordcount()
     let file_type.=' '.moline#file#wordcount()
   endif
-  return filesize.' '.filename.' '.file_type
+  if winwidth(0) > 70
+    return filesize.' '.filename.' '.file_type
+  endif
+  if winwidth(0) > 60
+    return '%.15f'.' '.file_type
+  endif
+  if winwidth(0) > 15
+    return '%f'
+  endif
+  return file_type
 endfunction
 
 function! moline#file#modified() abort
   if &modified && &modifiable
-    return '[+]'
+    return '󰤌'
   endif
-  return &readonly ? '[]' : '[ ]'
+  return &readonly ? '' : '󰆢'
 endfunction
 
 function! moline#file#rowcol() abort
   " %3l - line number, 3 dight fixed width
   " c - column number (not visual virtual column), 2 fixed width, left
   " justified
-  return winwidth(0)>100?'%-3l%-2c':''
+  return winwidth(0)>15?'%-3l%-2c':''
 endfunction
 
 function! moline#file#fileedit() abort
   " %3l - line number, 3 dight fixed width
   " c - column number (not visual virtual column), 2 fixed width, left
   " justified
-  let hex_code = winwidth(0)>100?' '.'%-4B':''
+  let hex_code = winwidth(0)>60?'󰅨 %-5B':''
   let rowcol = moline#file#rowcol()
   let percent = moline#file#filepercent()
-  return hex_code.percent.' '.rowcol
+  if winwidth(0) > 60
+    return hex_code.' '. percent . ' ' . rowcol
+  endif
+  return rowcol
 endfunction
 
 function! moline#file#filetype() abort
@@ -173,6 +186,9 @@ endfunction
 " let s:pie=['○', '◔', '◑', '◕', '●']
 let s:stack= [' ', '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
 function! moline#file#filepercent() abort
+  if winwidth(0) < 60
+    return ''
+  endif
   let current_line = line(".")
   let total_line = line("$") + 1
   let index = len(s:stack) * 0.01 * current_line * 100 / total_line
@@ -184,23 +200,25 @@ function! moline#file#fileformat() abort
   let edit_mode=s:get_mode()
   let file_encoding=&fenc !=# '' ? &fenc : &enc
   let file_format="[".&ff."]"
-  call moline#file#update_style_to_mode_state(edit_mode, 'fileformat')
-  return file_encoding.file_format
+  if winwidth(0) > 60
+    call moline#file#update_style_to_mode_state(edit_mode, 'fileformat')
+    return file_encoding.file_format
+  endif
+  if winwidth(0) > 30
+      call moline#file#update_style_to_mode_state(edit_mode, 'fileformat')
+      return file_encoding
+  endif
+  " disable highlight
+  execute('hi! link Moline_fileformat_active Moline_fileformat_active')
+  return ''
 endfunction
 
 function! s:need_wordcount() abort
-  return (&filetype == 'markdown' || &filetype == 'txt') && winwidth(0)>=120
+  return (&filetype == 'markdown' || &filetype == 'txt') && winwidth(0)> 80
 endfunction
 
 function! moline#file#wordcount()
   let wc=wordcount()
   return wc.words . ' words'
-endfunction
-
-" TODO tabs
-function! moline#file#tabname()
-endfunction
-
-function! moline#file#tabnumber()
 endfunction
 

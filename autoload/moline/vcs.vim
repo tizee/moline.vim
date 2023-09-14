@@ -28,19 +28,19 @@ function! s:cache_git()
       endif
     endfor
     let s:git_init=0
-  endif 
+  endif
 endfunction
 
 function! moline#vcs#git() abort
   if s:git_init==1
     call s:cache_git()
-  endif 
+  endif
   let [a,m,r]=s:get_git_diff_hunk()
   let remote_icon = s:get_remote_icon()
   let current_branch = s:get_branch()
   if len(current_branch)==0
     return ''
-  endif 
+  endif
   let msg = []
   call add(msg, '%#Moline_git_added#%' . ' ' . s:git_status_icons['added'].' '.trim(a))
   call add(msg, '%#Moline_git_modified#%' . ' '. s:git_status_icons['modified'].' '.trim(m))
@@ -48,10 +48,11 @@ function! moline#vcs#git() abort
   if !empty(remote_icon)
     call add(msg, '%#Moline_git_icon#%'.' '.remote_icon)
   endif
-  if winwidth(0) > 80 && !empty(current_branch)
+  if winwidth(0) > 70 && !empty(current_branch)
     call add(msg, current_branch . ' ')
-  endif 
-  return join(msg, ' ')
+    return join(msg, ' ')
+  endif
+  return ''
 endfunction
 
 " git plugin compatibility
@@ -61,14 +62,14 @@ function! s:get_git_diff_hunk() abort
   let removed = 0
   if exists('*GitGutterGetHunkSummary')
     let [added, modified, removed] = GitGutterGetHunkSummary()
-  endif 
+  endif
   return [added, modified, removed]
 endfunction
 
 function! s:get_branch()
   if exists('*FugitiveHead')
-    return FugitiveHead() 
-  endif 
+    return FugitiveHead()
+  endif
   return system('git branch --show-current') . ' '
 endfunction
 
@@ -77,7 +78,7 @@ function! s:get_remote_icon() abort
   let platform = s:get_git_platform(url)
   if has_key(s:git_remote_icons, platform)
     return s:git_remote_icons[platform]
-  endif 
+  endif
   return ''
 endfunction
 
@@ -88,13 +89,13 @@ function! s:get_git_platform(url)
     return 'gitlab'
   else
     return 'default'
-  endif 
+  endif
 endfunction
 
 function! s:get_git_repo_link(remote) abort
   if exists('*FugitiveRemoteUrl')
     return FugitiveRemoteUrl()
-  endif 
+  endif
   return system("git config --get remote.". a:remote . ".url")
 endfunction
 

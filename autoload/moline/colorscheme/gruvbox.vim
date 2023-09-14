@@ -259,7 +259,7 @@ let s:colors = {
       \ },
         \'fileformat':{
             \ 'inactive': s:inactive,
-            \ 'active': s:inactive,
+            \ 'active': s:active,
             \ 'normal': s:modes_bg.normal,
             \ 'insert': s:modes_bg.insert,
             \ 'visual': s:modes_bg.visual,

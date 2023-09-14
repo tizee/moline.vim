@@ -41,22 +41,25 @@ let s:default_moline= {
           \  },
           \ 'fileedit': {
           \  'producer': 'moline#file#fileedit',
+          \  'left_sep': ' ',
           \  },
           \  'mode': {
           \  'producer': 'moline#file#mode',
           \  'visible': 'moline#file#is_not_specialfile',
           \  'class': 'mode',
-          \  'left_sep':'█'
+          \  'sep':' '
           \  },
           \ 'filename': {
           \  'producer': 'moline#file#filename',
           \  'visible': 'moline#file#is_not_specialfile',
           \  'fallback': 'special_files',
           \  'class': 'filename',
+          \  'sep': ' ',
           \  },
           \ 'special_files':{
           \  'producer': 'moline#file#get_specialfile_info',
           \  'class': 'filename',
+          \  'sep': ' ',
           \},
           \ 'error': {
           \  'producer': 'moline#diagnostic#coc_error',
@@ -71,7 +74,7 @@ let s:default_moline= {
           \ 'fileformat': {
           \  'producer': 'moline#file#fileformat',
           \  'class': 'fileformat',
-          \  'right_sep':'█'
+          \  'sep': ' ',
           \  },
           \},
       \}
@@ -146,6 +149,8 @@ function! moline#get_comp_state(comp_name,inactive)
   return a:inactive?"inactive":"active"
 endfunction
 
+" build statusline item
+" return item with highlight group
 function! s:render_comp(component,name,pos,inactive) abort
     let result=''
     let producer=a:component.producer
@@ -155,9 +160,17 @@ function! s:render_comp(component,name,pos,inactive) abort
     let comp_state = call(s:moline.compStateProducer,[a:name,a:inactive])
     let comp_hlgroup= s:build_hlgroup(comp_class,comp_state)
     " buffer dependent
-    let comp_str= comp_hlgroup ."%{%". producer ."()%}"
-    " resultet style
+    " executae %{%function()%}
+    let comp_str= comp_hlgroup .'%'
+    " set the maxwidth for item
+    if a:pos == 'left' && a:name == 'mode'
+      " alwyas display mode
+      let comp_str .= '.50'
+    else
+    endif
+    let comp_str .= "{%". producer ."()%}"
 
+    " highlight group for filling spaces
     let fill_section = a:inactive?'%#Moline_default_inactive#':'%#Moline_default_active#'
     let result.=fill_section
     if get(a:component,'left_sep') != ''
@@ -167,7 +180,7 @@ function! s:render_comp(component,name,pos,inactive) abort
         let result.=comp_hlgroup
         let result.=get(a:component,'sep','')
     endif
-    let result.=' '.comp_str.' '
+    let result.=comp_str
     if get(a:component,'right_sep') != ''
         let result.=get(a:component,'right_sep','')
     elseif get(a:component,'sep') != ''
@@ -181,13 +194,14 @@ function! s:get_section_comps(section,pos,inactive) abort
   let result=""
   for name in a:section
     if has_key(s:moline.comps,name) " has comp func
-      let result.=s:render_comp(s:moline.comps[name],name,a:pos, a:inactive)
+      let result.=s:render_comp(s:moline.comps[name],name,a:pos,a:inactive)
     endif
   endfor
-  echomsg
   return result
 endfunction
 
+" set highlight group for statusline
+" return %#HLname#
 function! s:build_hlgroup(class, state) abort
   return '%#Moline_'.a:class.'_'.a:state.'#'
 endfunction
@@ -195,6 +209,7 @@ endfunction
 " 1. remove invisible components according to conditions
 " 2. render visible components
 function! s:build_statusline(inactive) abort
+  " return "%.50{%mode()%}\ %h%m%r%=%-14.(%l,%c%V%)\ %P"
   let fill_section = '%#Moline_default_active#%='
   let left_section = s:remove_invisible_comp('left',a:inactive)
   let right_section = s:remove_invisible_comp('right',a:inactive)
@@ -203,9 +218,10 @@ function! s:build_statusline(inactive) abort
   let right_section = s:get_section_comps(right_section,'right',a:inactive)
   if len(mid_section) > 0
     let mid_section = s:get_section_comps(mid_section,'mid',a:inactive)
+    " statusline item format: %-0{minwid}.{maxwid}{item}
     return left_section.fill_section.mid_section.fill_section.right_section
   endif
-  return left_section." %= ".right_section
+  return left_section."%=".right_section
 endfunction
 
 " moline status:
@@ -238,6 +254,10 @@ function! moline#update() abort
     endfor
 endfunction
 
+function! s:build_tabline() abort
+" TODO
+endfunction
+
 function! moline#disable() abort
   let s:moline_state=3
   call setwinvar(0, '&statusline', '')
@@ -247,9 +267,10 @@ function! moline#toggle() abort
   if get(g:,'loaded_moline_vim',0) == 1
     call moline#update(0)
   else
-    setl &statusline=''
+    set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
   endif
 endfunction
+
 
 " Utilities {{{
 function! s:log(msg) abort

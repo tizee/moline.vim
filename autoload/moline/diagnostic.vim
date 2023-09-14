@@ -3,7 +3,7 @@ function! moline#diagnostic#coc_error() abort
   let num = get(info,'error',0)
   if num > 0
     return ' ' .  num
-  endif 
+  endif
   return ''
 endfunction
 
@@ -12,7 +12,7 @@ function! moline#diagnostic#coc_warn() abort
   let num = get(info,'error',0)
   if num > 0
     return ' ' . num
-  endif 
+  endif
   return ''
 endfunction
 
@@ -26,7 +26,7 @@ function! s:get_coc_running_services() abort
   if exists("*CocAction") && !get(g:, 'coc_service_initialized', 0)
     return ""
   endif
-  if win_gettype() == '' 
+  if win_gettype() == ''
     if &buftype ==# 'terminal' || &buftype ==# 'nofile'
           \ || &buftype ==# 'nofile'
           \ || &buftype ==# 'quickfix'
@@ -35,7 +35,7 @@ function! s:get_coc_running_services() abort
           \ || &buftype ==# 'help'
       return ""
     endif
-  endif 
+  endif
   return get(g:,"coc_running_services","")
 endfunction
 
@@ -44,6 +44,7 @@ function! moline#diagnostic#coc_lsp() abort
   let lsp_str='No Active LSP'
   if len(running_services) > 0
     let lsp_str=running_services
+    return ' LSP:'.' '.lsp_str
   endif
-  return ' LSP:'.' '.lsp_str
+  return ""
 endfunction

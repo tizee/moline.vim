@@ -127,9 +127,8 @@ function! moline#file#filename() abort
   if !empty(modified)
     let filename .=modified.' '
   endif
-  " let filename.=winwidth(0)>120?'%10t':expand('%:t')
-	" the last 15 characters
-  let filename.=expand('%:p')[-15:]
+  " the last 20 characters
+  let filename.=winwidth(0)>120?expand('%:p')[-20:]:'%t'
   let filesize=moline#file#filesize()
   if s:need_wordcount()
     let file_type.=' '.moline#file#wordcount()
@@ -174,8 +173,10 @@ function! moline#file#fileedit() abort
 endfunction
 
 function! moline#file#filetype() abort
-  let icon = WebDevIconsGetFileTypeSymbol()
-  return strlen(&filetype) ? icon : 'no ft'
+  if strlen(&filetype) && exists("*WebDevIconsGetFileTypeSymbol")
+    return WebDevIconsGetFileTypeSymbol()
+  endif
+  return strlen(&filetype) ? &filetype : 'no ft'
 endfunction
 
 function! moline#file#readonly() abort
@@ -193,7 +194,7 @@ function! moline#file#filepercent() abort
   let total_line = line("$") + 1
   let index = len(s:stack) * 0.01 * current_line * 100 / total_line
   let indicator = s:stack[float2nr(index)]
-  return indicator.'%3p%%'
+  return '%3p%% '. indicator
 endfunction
 
 function! moline#file#fileformat() abort

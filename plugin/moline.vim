@@ -7,6 +7,21 @@ let g:loaded_moline_vim = 1
 let s:save_cpo=&cpo
 set cpo&vim
 
+let s:default_remote_icons = {
+      \ 'github':  '  ',
+      \ 'gitlab':  '  ',
+      \ 'default': '  ',
+      \}
+
+let s:default_git_status_icons = {
+      \ 'added': '',
+      \ 'modified': '',
+      \ 'removed': '',
+      \}
+
+let g:moline_git_status_icons = get(g:, "moline_git_status_icons", s:default_git_status_icons)
+let g:moline_git_remote_icons = get(g:, "moline_git_remote_icons", s:default_remote_icons)
+
 let g:moline_buffer_modes = {
       \ 'n' :  {
         \  'txt': 'N',

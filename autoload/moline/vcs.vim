@@ -1,40 +1,6 @@
-let s:default_remote_icons = {
-      \ 'github':  '  ',
-      \ 'gitlab':  '  ',
-      \ 'default': '  ',
-      \}
-
-let s:default_git_status_icons = {
-      \ 'added': '',
-      \ 'modified': '',
-      \ 'removed': '',
-      \}
-
-
-let s:git_init=1 " 1: init 2: init done
-
-function! s:cache_git()
-  if s:git_init==1
-    let s:git_status_icons=deepcopy(get(g:,'moline_git_status_icons',{}))
-    for [key,val] in items(s:default_git_status_icons)
-      if !has_key(s:git_status_icons,key)
-        let s:git_status_icons[key]=val
-      endif
-    endfor
-    let s:git_remote_icons=deepcopy(get(g:,'moline_git_remote_icons',{}))
-    for [key,val] in items(s:default_remote_icons)
-      if !has_key(s:git_remote_icons,key)
-        let s:git_remote_icons[key]=val
-      endif
-    endfor
-    let s:git_init=0
-  endif
-endfunction
+scriptencoding utf-8
 
 function! moline#vcs#git() abort
-  if s:git_init==1
-    call s:cache_git()
-  endif
   let [a,m,r]=s:get_git_diff_hunk()
   let remote_icon = s:get_remote_icon()
   let current_branch = s:get_branch()
@@ -42,9 +8,9 @@ function! moline#vcs#git() abort
     return ''
   endif
   let msg = []
-  call add(msg, '%#Moline_git_added#%' . ' ' . s:git_status_icons['added'].' '.trim(a))
-  call add(msg, '%#Moline_git_modified#%' . ' '. s:git_status_icons['modified'].' '.trim(m))
-  call add(msg, '%#Moline_git_removed#%'. ' ' . s:git_status_icons['removed'].' '.trim(r))
+  call add(msg, '%#Moline_git_added#%' . ' ' . g:moline_git_status_icons['added'].' '.trim(a))
+  call add(msg, '%#Moline_git_modified#%' . ' '. g:moline_git_status_icons['modified'].' '.trim(m))
+  call add(msg, '%#Moline_git_removed#%'. ' ' . g:moline_git_status_icons['removed'].' '.trim(r))
   if !empty(remote_icon)
     call add(msg, '%#Moline_git_icon#%'.' '.remote_icon)
   endif
@@ -76,8 +42,8 @@ endfunction
 function! s:get_remote_icon() abort
   let url = s:get_git_repo_link('origin')
   let platform = s:get_git_platform(url)
-  if has_key(s:git_remote_icons, platform)
-    return s:git_remote_icons[platform]
+  if has_key(g:moline_git_remote_icons, platform)
+    return g:moline_git_remote_icons[platform]
   endif
   return ''
 endfunction

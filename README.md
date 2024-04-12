@@ -16,10 +16,10 @@ Yet another status line plugin. I create it just for eye candy.
   - remote repo platform icon from NerdFont (Github/Gitlab/Other)
   - branch icon
   - untracked/modifed/deleted numbers
-- Diagnostic: Warning/Error
-  - require forked Coc.nvim
+- ~~Diagnostic: Warning/Error~~
+  - ~~require forked Coc.nvim~~
 
 ## Roadmap
 
 - [x] Current running lsp services
-- [ ] Tab style
+- ~~[ ] Tab style~~ Please use a tabline plugin

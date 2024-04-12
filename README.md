@@ -8,6 +8,7 @@ Yet another status line plugin. I create it just for eye candy.
 
 - NerdFont >= 3.0.0
 - vim-devicons
+- vim-gitgutter
 
 ## Features
 

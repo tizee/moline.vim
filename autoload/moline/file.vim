@@ -157,18 +157,18 @@ function! moline#file#rowcol() abort
   " %3l - line number, 3 dight fixed width
   " c - column number (not visual virtual column), 2 fixed width, left
   " justified
-  return winwidth(0)>15?'%-3l%-2c':''
+  return winwidth(0)>15?'%L/%-3l:%-2c':'%-3l'
 endfunction
 
 function! moline#file#fileedit() abort
   " %3l - line number, 3 dight fixed width
   " c - column number (not visual virtual column), 2 fixed width, left
   " justified
-  let hex_code = winwidth(0)>60?'󰅨 %-5B':''
+  let hex_code = winwidth(0)>60?' 󰅨 %-5B':''
   let rowcol = moline#file#rowcol()
   let percent = moline#file#filepercent()
   if winwidth(0) > 60
-    return hex_code.' '. percent . ' ' . rowcol
+    return percent . ' ' . rowcol . hex_code
   endif
   return rowcol
 endfunction

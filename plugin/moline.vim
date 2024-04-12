@@ -65,7 +65,9 @@ augroup moline
   else
     autocmd FileType,BufEnter,BufDelete,WinEnter,FileChangedShellPost * call moline#update()
   endif
-  autocmd ColorScheme * call moline#update()
+ autocmd ColorScheme * call moline#update()
+ " vim-gitgutter
+ autocmd User GitGutter call moline#update()
 augroup END "moline
 
 let &cpo = s:save_cpo

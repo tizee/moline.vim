@@ -1,26 +1,6 @@
 scriptencoding utf-8
-"""  Configuration options
-" 1. colorscheme: colorscheme name requires string
-"
-" 2. display sections
-" 2.1 current buffer
-" active: {
-"  left: left section requires array of components
-"  mid: middle section requires array of components
-"  right: right section requires array of components
-" }
-" 2.2  inactive buffers
-" inactive: {
-"  left: left section requires array of components
-"  mid: middle section requires array of components
-"  right: right section requires array of components
-" }
-" 2.3
-" compStateProducer
-"
-"""
 
-let s:default_moline= {
+let s:default_moline_statusline = {
       \ 'colorscheme': 'gruvbox',
       \ 'active': { 'left': ['mode','filename','error','warn'], 'mid':['lsp'], 'right': ['vcs','fileedit','fileformat'], },
       \ 'inactive': { 'left': ['mode','filename','error','warn'],'mid':[], 'right': ['fileedit', 'fileformat'] },
@@ -79,10 +59,12 @@ let s:default_moline= {
           \},
       \}
 
+let g:moline_statusline = get(g:, "moline_statusline", s:default_moline_statusline)
+
 function! s:cache_config() abort
-  let s:moline = deepcopy(get(g:,'moline', {}))
+  let s:moline = deepcopy(get(g:,'moline_statusline', {}))
   " default_moline merge into user defined moline
-  for [key,value] in items(s:default_moline)
+  for [key,value] in items(s:default_moline_statusline)
     if type(value) == 4 " dict
       if !has_key(s:moline,key)
         let s:moline[key]={}
@@ -124,7 +106,7 @@ function! s:remove_invisible_comp(pos,inactive) abort
 endfunction
 
 function! s:setup_moline() abort
-  let s:option_statusline=&statusline
+  let g:moline_option_statusline=&statusline
   call s:cache_config()
   " color scheme init
   call moline#highlight#init(s:moline.colorscheme)
@@ -132,7 +114,7 @@ endfunction
 
 function! s:restore_statusline() abort
   for i in range(1, winnr('$'))
-    call setwinvar(i, '&statusline', s:option_statusline)
+    call setwinvar(i, '&statusline', g:moline_option_statusline)
   endfor
 endfunction
 
@@ -267,10 +249,9 @@ function! moline#toggle() abort
   if get(g:,'loaded_moline_vim',0) == 1
     call moline#update(0)
   else
-    set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
+    set statusline=g:moline_option_statusline
   endif
 endfunction
-
 
 " Utilities {{{
 function! s:log(msg) abort
